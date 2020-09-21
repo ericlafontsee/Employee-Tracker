@@ -25,7 +25,11 @@ function start() {
                 "View All Employees By Department",
                 "View All Employees By Manager",
                 "Add Employee",
+                "Add Department",
+                "Add Role",
                 "Remove Employee",
+                "Remove Department",
+                "Remove Role",
                 "Update Employee Role",
                 "Update Employee Manager",
                 "View All Roles"
@@ -45,8 +49,20 @@ function start() {
                 case "Add Employee":
                     addEmployee();
                     break;
+                case "Add Department":
+                    addDepartment();
+                    break;
+                case "Add Role":
+                    addRole();
+                    break;
                 case "Remove Employee":
                     RemoveEmployee();
+                    break;
+                case "Remove Department":
+                    RemoveDepartment();
+                    break;
+                case "Remove Role":
+                    RemoveRole();
                     break;
                 case "Update Employee Role":
                     updateRole();
@@ -142,7 +158,44 @@ function addEmployee() {
                 },
                 function(err, res) {
                     if (err) throw err;
-                    console.log("----------------------\n" + res.affectedRows + " employee inserted!\n");
+                    console.log("----------------------\n" + res.affectedRows + " Employee Added!\n");
+                    start();
+                }
+            );
+        });
+};
+
+function addDepartment() {
+    prompt([
+
+            {
+                name: "departName",
+                message: "What is the name of the department?"
+            }
+            // {
+            //     name: "departID",
+            //     type: "list",
+            //     message: "What is the ID of the deparment?",
+            //     choices: [
+            //         1,
+            //         2,
+            //         3,
+            //         4,
+            //         5
+            //     ]
+
+            // },
+
+        ])
+        .then(function(answer) {
+            // when finished prompting, insert a new item into the db with that info
+            connection.query(
+                "INSERT INTO department SET ?", {
+                    name: answer.departName
+                },
+                function(err, res) {
+                    if (err) throw err;
+                    console.log("----------------------\n" + res.affectedRows + " Department Added!\n");
                     start();
                 }
             );
