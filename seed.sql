@@ -1,28 +1,39 @@
-DROP DATABASE IF EXISTS employee_db;
-
-CREATE DATABASE employee_db;
-
 USE employee_db;
 
-CREATE TABLE department (
-    id INT AUTO_INCREMENT NOT NULL,
-    name VARCHAR(30) NOT NULL,
-    PRIMARY KEY (id)
-);
+--Employee"s Table
 
-CREATE TABLE role (
-    id INT AUTO_INCREMENT NOT NULL,
-    title VARCHAR(30) NOT NULL,
-    salary DECIMAL (10,2) NOT NULL,
-    department_id INT NOT NULL,
-    PRIMARY KEY (id)
-);
+INSERT INTO employee (first_name, last_name, role_id, manager_id)
+VALUES ("Eric", "LaFontsee", 1, 2);
+INSERT INTO employee (first_name, last_name, role_id, manager_id)
+VALUES ("Brendon", "Conatser", 2, 2);
+INSERT INTO employee (first_name, last_name, role_id, manager_id)
+VALUES ("Chris", "Reed", 3, 2);
+INSERT INTO employee (first_name, last_name, role_id)
+VALUES ("Anthony", "Cooper", 2);
+INSERT INTO employee (first_name, last_name, role_id, manager_id)
+VALUES ("Miller", "Rich", 4, 2);
 
-CREATE TABLE employee (
-    id INT AUTO_INCREMENT NOT NULL,
-    first_name VARCHAR(30) NOT NULL,
-    last_name VARCHAR(30) NOT NULL,
-    role_id INT NOT NULL,
-    manager_id INT,
-    PRIMARY KEY (id)
-);
+--Department TABLE 
+INSERT INTO department (name)
+VALUES ("HR");
+INSERT INTO department (name)
+VALUES ("Manufacturing");
+INSERT INTO department (name)
+VALUES ("Security");
+INSERT INTO department (name)
+VALUES ("PR");
+INSERT INTO department (name)
+VALUES ("Sales");
+
+
+--Role Table
+INSERT INTO role (title, salary, department_id)
+VALUES ("Manager", 75000, 1);
+INSERT INTO role (title, salary, department_id)
+VALUES ("Machine Operator", 50000, 2);
+INSERT INTO role (title, salary, department_id)
+VALUES ("Security Officer", 40000, 3);
+INSERT INTO role (title, salary, department_id)
+VALUES ("PR Representative", 50000, 4);
+INSERT INTO role (title, salary, department_id)
+VALUES ("Senior Sales Representative", 60000, 5);
