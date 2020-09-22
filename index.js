@@ -243,14 +243,14 @@ function RemoveEmployee() {
 
 function RemoveDepartment() {
     prompt([{
-            name: "lastName",
-            message: "What is the last name of the employee you'd like to remove?"
+            name: "departName",
+            message: "What is thename of the department you'd like to remove?"
 
         }])
         .then(function(answer) {
             connection.query(
-                "DELETE FROM employee WHERE ?", [{
-                    last_name: answer.lastName
+                "DELETE FROM department WHERE ?", [{
+                    name: answer.departName
                 }],
                 function(err, res) {
                     if (err) throw err;
