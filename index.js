@@ -76,7 +76,7 @@ function start() {
                     getDepartmentIds();
                     break;
                 case "Remove Role":
-                    removeRole();
+                    getRoleList();
                     break;
                 case "Update Employee Role":
                     updateRole();
@@ -293,7 +293,6 @@ function getDepartmentIds() {
 }
 
 function removeDepartment(department) {
-    console.log(department);
     prompt([{
             name: "departName",
             message: "What is thename of the department you'd like to remove?",
@@ -317,10 +316,26 @@ function removeDepartment(department) {
 
 };
 
-function removeRole() {
+function getRoleList() {
+    connection.query(`
+    SELECT title FROM role
+     `, function(err, res) {
+        if (err) throw err;
+        var roleTitle = [];
+        for (var i = 0; i < res.length; i++) {
+            roleTitle.push(res[i].title);
+        }
+        removeRole({ title: roleTitle });
+
+    });
+}
+
+function removeRole(roleList) {
     prompt([{
             name: "roleTitle",
-            message: "What is the title of the role you'd like to remove?"
+            message: "What is the title of the role you'd like to remove?",
+            choices: roleList.title,
+            type: "list"
 
         }])
         .then(function(answer) {
