@@ -172,20 +172,6 @@ function addDepartment() {
                 name: "departName",
                 message: "What is the name of the department?"
             }
-            // {
-            //     name: "departID",
-            //     type: "list",
-            //     message: "What is the ID of the deparment?",
-            //     choices: [
-            //         1,
-            //         2,
-            //         3,
-            //         4,
-            //         5
-            //     ]
-
-            // },
-
         ])
         .then(function(answer) {
             // when finished prompting, insert a new item into the db with that info
@@ -196,6 +182,38 @@ function addDepartment() {
                 function(err, res) {
                     if (err) throw err;
                     console.log("----------------------\n" + res.affectedRows + " Department Added!\n");
+                    start();
+                }
+            );
+        });
+}
+
+function addRole() {
+    prompt([{
+                name: "roleTitle",
+                message: "What is the title of the role?"
+            },
+            {
+                name: "salary",
+                message: "What is the salary of the role?"
+
+            },
+            {
+                name: "departmentId",
+                message: "What is the role ID?"
+
+            },
+        ])
+        .then(function(answer) {
+            connection.query(
+                "INSERT INTO role SET ?", {
+                    title: answer.roleTitle,
+                    salary: answer.salary,
+                    department_id: answer.departmentId
+                },
+                function(err, res) {
+                    if (err) throw err;
+                    console.log("----------------------\n" + res.affectedRows + " Role Added!\n");
                     start();
                 }
             );
@@ -215,7 +233,28 @@ function RemoveEmployee() {
                 }],
                 function(err, res) {
                     if (err) throw err;
-                    console.log("----------------------\n" + res.affectedRows + " employee deleted!\n");
+                    console.log("----------------------\n" + res.affectedRows + " Employee Removed!\n");
+                    start();
+                }
+            );
+        });
+
+};
+
+function RemoveDepartment() {
+    prompt([{
+            name: "lastName",
+            message: "What is the last name of the employee you'd like to remove?"
+
+        }])
+        .then(function(answer) {
+            connection.query(
+                "DELETE FROM employee WHERE ?", [{
+                    last_name: answer.lastName
+                }],
+                function(err, res) {
+                    if (err) throw err;
+                    console.log("----------------------\n" + res.affectedRows + " Department Removed!\n");
                     start();
                 }
             );
