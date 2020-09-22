@@ -56,13 +56,13 @@ function start() {
                     addRole();
                     break;
                 case "Remove Employee":
-                    RemoveEmployee();
+                    removeEmployee();
                     break;
                 case "Remove Department":
-                    RemoveDepartment();
+                    removeDepartment();
                     break;
                 case "Remove Role":
-                    RemoveRole();
+                    removeRole();
                     break;
                 case "Update Employee Role":
                     updateRole();
@@ -220,7 +220,7 @@ function addRole() {
         });
 };
 
-function RemoveEmployee() {
+function removeEmployee() {
     prompt([{
             name: "lastName",
             message: "What is the last name of the employee you'd like to remove?"
@@ -241,7 +241,7 @@ function RemoveEmployee() {
 
 };
 
-function RemoveDepartment() {
+function removeDepartment() {
     prompt([{
             name: "departName",
             message: "What is thename of the department you'd like to remove?"
@@ -255,6 +255,27 @@ function RemoveDepartment() {
                 function(err, res) {
                     if (err) throw err;
                     console.log("----------------------\n" + res.affectedRows + " Department Removed!\n");
+                    start();
+                }
+            );
+        });
+
+};
+
+function removeRole() {
+    prompt([{
+            name: "roleTitle",
+            message: "What is the title of the role you'd like to remove?"
+
+        }])
+        .then(function(answer) {
+            connection.query(
+                "DELETE FROM role WHERE ?", [{
+                    title: answer.roleTitle
+                }],
+                function(err, res) {
+                    if (err) throw err;
+                    console.log("----------------------\n" + res.affectedRows + " Role Removed!\n");
                     start();
                 }
             );
