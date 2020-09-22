@@ -1,7 +1,8 @@
-var { prompt } = require("inquirer");
-const Choices = require("inquirer/lib/objects/choices");
-var mysql = require("mysql");
-var connection = mysql.createConnection({
+const inquirer = require("inquirer");
+const { prompt } = require("inquirer");
+const mysql = require("mysql");
+var term = require('terminal-kit').terminal;
+const connection = mysql.createConnection({
     host: 'localhost',
     port: 3306,
     user: 'root',
@@ -12,16 +13,26 @@ var connection = mysql.createConnection({
 connection.connect(function(err) {
     if (err) throw err;
     console.log("Connected as id " + connection.threadId + "\n");
-    start();
+    term.slowTyping(
+        'WELCOME TO EMPLOYEE TRACKER!\n', { flashStyle: term.brightWhite },
+        function() { start(); }
+    );
+
 });
 
+
+
+
 function start() {
+
     prompt({
             type: "list",
             message: "What would you like to do?",
             name: "action",
             choices: [
                 "View All Employees",
+                "View All Roles",
+                "View All Departments",
                 "View All Employees By Department",
                 "View All Employees By Manager",
                 "Add Employee",
@@ -31,8 +42,7 @@ function start() {
                 "Remove Department",
                 "Remove Role",
                 "Update Employee Role",
-                "Update Employee Manager",
-                "View All Roles"
+                "Update Employee Manager"
             ]
         })
         .then(function(answer) {
@@ -40,7 +50,10 @@ function start() {
                 case "View All Employees":
                     viewEmployees();
                     break;
-                case "View All Employees By Department":
+                case "View All Roles":
+                    viewRoles();
+                    break;
+                case "View All Departments":
                     viewDepartment();
                     break;
                 case "View All Employees By Manager":
@@ -70,9 +83,6 @@ function start() {
                 case "Update Employee Manager":
                     updateManager();
                     break;
-                case "View All Roles":
-                    viewRoles();
-                    break;
                 case "exit":
                     connection.end();
                     break;
@@ -90,6 +100,16 @@ function viewEmployees() {
     });
 };
 
+function viewRoles() {
+    connection.query(`
+        SELECT * FROM role
+         `, function(err, res) {
+        if (err) throw err;
+        console.table(res);
+        start();
+    });
+};
+
 function viewDepartment() {
     connection.query(`
         SELECT * FROM department
@@ -100,17 +120,48 @@ function viewDepartment() {
     });
 };
 
-function viewManager() {
-    connection.query(`
-        SELECT * FROM 
-         `, function(err, res) {
-        if (err) throw err;
-        console.table(res);
-        start();
-    });
-};
+// function viewManager() {
+//     connection.query(`
+//         SELECT * FROM 
+//          `, function(err, res) {
+//         if (err) throw err;
+//         console.table(res);
+//         start();
+//     });
+// };
 
 function addEmployee() {
+    // let roleArr = [];
+    // let managerArr = [];
+    connection.query(`
+        SELECT * FROM role
+         `, function(err, res) {
+        if (err) throw err;
+        prompt({
+            name: "role",
+            type: "rawlist",
+            message: "Selet a Role for the Employee",
+            choices: res
+        }).then(function(answer) {
+            const selectedItem = res.find(item => answer.role === item.title);
+            console.log(selectedItem);
+            createEmployee(selectedItem.id);
+        });
+
+    });
+
+    function createEmployee(id) {
+        prompt({
+            name: 'name',
+            message: 'What\s your employee\'s name?'
+        }).then(function(answer) {
+            connection.query("INSERT INTO employee VALUES name = ? role_id = ?", [answer.name, id], function(err, res) {
+                if (err) throw err;
+                console.log("Successfully Added Employee");
+            });
+        });
+    }
+    // console.log(roleArr);
     prompt([
 
             {
@@ -282,3 +333,36 @@ function removeRole() {
         });
 
 };
+
+function updateRole() {
+    prompt([
+
+            {
+                name: "roleTitle",
+                message: "What is the title of the role you'd like to update?",
+            },
+            {
+                name: "roleSalary",
+                message: "What is the updated salary?"
+
+            }
+        ])
+        .then(function(answer) {
+            connection.query(
+                "UPDATE role SET ? WHERE ?", [
+
+                    {
+                        salary: roleSalary
+                    },
+                    {
+                        title: answer.roleTitle
+                    }
+                ],
+                function(err, res) {
+                    if (err) throw err;
+                    console.log("----------------------\n" + res.affectedRows + " Role Removed!\n");
+                    start();
+                }
+            );
+        });
+}
