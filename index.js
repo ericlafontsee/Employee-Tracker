@@ -13,10 +13,11 @@ const connection = mysql.createConnection({
 connection.connect(function(err) {
     if (err) throw err;
     console.log("Connected as id " + connection.threadId + "\n");
-    term.slowTyping(
-        'WELCOME TO EMPLOYEE TRACKER!\n', { flashStyle: term.brightWhite },
-        function() { start(); }
-    );
+    // term.slowTyping(
+    //     'WELCOME TO EMPLOYEE TRACKER!\n', { flashStyle: term.brightWhite },
+    //     function() { start(); }
+    // );
+    start();
 
 });
 
@@ -69,10 +70,10 @@ function start() {
                     addRole();
                     break;
                 case "Remove Employee":
-                    removeEmployee();
+                    getEmployees();
                     break;
                 case "Remove Department":
-                    removeDepartment();
+                    getDepartmentIds();
                     break;
                 case "Remove Role":
                     removeRole();
@@ -120,110 +121,75 @@ function viewDepartment() {
     });
 };
 
-// function viewManager() {
-//     connection.query(`
-//         SELECT * FROM 
-//          `, function(err, res) {
-//         if (err) throw err;
-//         console.table(res);
-//         start();
-//     });
-// };
+
 
 function addEmployee() {
-    // let roleArr = [];
-    // let managerArr = [];
     connection.query(`
-        SELECT * FROM role
-         `, function(err, res) {
+            SELECT id, title FROM role
+             `, function(err, res) {
         if (err) throw err;
-        prompt({
-            name: "role",
-            type: "rawlist",
-            message: "Selet a Role for the Employee",
-            choices: res
-        }).then(function(answer) {
-            const selectedItem = res.find(item => answer.role === item.title);
-            console.log(selectedItem);
-            createEmployee(selectedItem.id);
-        });
+
+        var roleId = [];
+        var titleList = [];
+        for (var i = 0; i < res.length; i++) {
+            roleId.push(res[i].id);
+            titleList.push(res[i].title);
+        }
+        prompt([
+
+                {
+                    name: "firstName",
+                    message: "What is the first name of the employee?"
+                },
+                {
+                    name: "lastName",
+                    message: "What is the last name of the employee?"
+
+                },
+                {
+                    name: "roleId",
+                    type: "list",
+                    message: "What is the employee's role?",
+                    choices: titleList
+                },
+                {
+                    name: "managerId",
+                    type: "list",
+                    message: "What is the employee's manager's ID?",
+                    choices: [
+                        1,
+                        2,
+                        3
+                    ]
+
+                },
+            ])
+            .then(function(answer) {
+                var i = titleList.indexOf(answer.roleId);
+                connection.query(
+                    "INSERT INTO employee SET ?", {
+                        first_name: answer.firstName,
+                        last_name: answer.lastName,
+                        role_id: roleId[i],
+                        manager_id: answer.managerId
+                    },
+                    function(err, res) {
+                        if (err) throw err;
+                        console.log("----------------------\n" + res.affectedRows + " Employee Added!\n");
+                        start();
+                    }
+                );
+            });
 
     });
+}
 
-    function createEmployee(id) {
-        prompt({
-            name: 'name',
-            message: 'What\s your employee\'s name?'
-        }).then(function(answer) {
-            connection.query("INSERT INTO employee VALUES name = ? role_id = ?", [answer.name, id], function(err, res) {
-                if (err) throw err;
-                console.log("Successfully Added Employee");
-            });
-        });
-    }
-    // console.log(roleArr);
-    prompt([
-
-            {
-                name: "firstName",
-                message: "What is the first name of the employee?"
-            },
-            {
-                name: "lastName",
-                message: "What is the last name of the employee?"
-
-            },
-            {
-                name: "roleId",
-                type: "list",
-                message: "What is the employee's role ID?",
-                choices: [
-                    1,
-                    2,
-                    3,
-                    4,
-                    5
-                ]
-
-            },
-            {
-                name: "managerId",
-                type: "list",
-                message: "What is the employee's manager's ID?",
-                choices: [
-                    1,
-                    2,
-                    3
-                ]
-
-            },
-        ])
-        .then(function(answer) {
-            // when finished prompting, insert a new item into the db with that info
-            connection.query(
-                "INSERT INTO employee SET ?", {
-                    first_name: answer.firstName,
-                    last_name: answer.lastName,
-                    role_id: answer.roleId,
-                    manager_id: answer.managerId
-                },
-                function(err, res) {
-                    if (err) throw err;
-                    console.log("----------------------\n" + res.affectedRows + " Employee Added!\n");
-                    start();
-                }
-            );
-        });
-};
 
 function addDepartment() {
-    prompt([
-
-            {
-                name: "departName",
-                message: "What is the name of the department?"
-            }
-        ])
+    prompt([{
+            name: "departName",
+            message: "What is the name of the department?"
+        }])
         .then(function(answer) {
             // when finished prompting, insert a new item into the db with that info
             connection.query(
@@ -271,13 +237,31 @@ function addRole() {
         });
 };
 
-function removeEmployee() {
+function getEmployees() {
+    connection.query(`
+    SELECT last_name FROM employee
+     `, function(err, res) {
+        if (err) throw err;
+        var employeeName = [];
+        for (var i = 0; i < res.length; i++) {
+            employeeName.push(res[i].last_name);
+        }
+        removeEmployee({ name: employeeName });
+
+    });
+}
+
+function removeEmployee(employees) {
+    console.log(employees);
     prompt([{
             name: "lastName",
-            message: "What is the last name of the employee you'd like to remove?"
+            message: "What is the last name of the employee you'd like to remove?",
+            choices: employees.name,
+            type: "list"
 
         }])
         .then(function(answer) {
+            var i = employees.name.indexOf(answer.lastName);
             connection.query(
                 "DELETE FROM employee WHERE ?", [{
                     last_name: answer.lastName
@@ -292,13 +276,33 @@ function removeEmployee() {
 
 };
 
-function removeDepartment() {
+function getDepartmentIds() {
+    connection.query(`
+    SELECT id, name FROM department
+     `, function(err, res) {
+        if (err) throw err;
+        var departID = [];
+        var departName = [];
+        for (var i = 0; i < res.length; i++) {
+            departID.push(res[i].id);
+            departName.push(res[i].name);
+        }
+        removeDepartment({ id: departID, name: departName });
+
+    });
+}
+
+function removeDepartment(department) {
+    console.log(department);
     prompt([{
             name: "departName",
-            message: "What is thename of the department you'd like to remove?"
+            message: "What is thename of the department you'd like to remove?",
+            choices: department.name,
+            type: "list"
 
         }])
         .then(function(answer) {
+            var i = department.name.indexOf(answer.departName);
             connection.query(
                 "DELETE FROM department WHERE ?", [{
                     name: answer.departName

@@ -17,7 +17,7 @@ VALUES ("Miller", "Rich", 4, 2);
 INSERT INTO department (name)
 VALUES ("HR");
 INSERT INTO department (name)
-VALUES ("Manufacturing");
+VALUES ("Intern");
 INSERT INTO department (name)
 VALUES ("Security");
 INSERT INTO department (name)
@@ -28,12 +28,12 @@ VALUES ("Sales");
 
 --Role Table
 INSERT INTO role (title, salary, department_id)
-VALUES ("Manager", 75000, 1);
+VALUES ("Intern", 75000, 1);
 INSERT INTO role (title, salary, department_id)
-VALUES ("Machine Operator", 50000, 2);
+VALUES ("Manager", 50000, 2);
 INSERT INTO role (title, salary, department_id)
 VALUES ("Security Officer", 40000, 3);
 INSERT INTO role (title, salary, department_id)
-VALUES ("PR Representative", 50000, 4);
+VALUES ("PR Rep", 50000, 4);
 INSERT INTO role (title, salary, department_id)
-VALUES ("Senior Sales Representative", 60000, 5);
+VALUES ("Senior Sales Rep", 60000, 5);
