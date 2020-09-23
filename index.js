@@ -13,15 +13,11 @@ const connection = mysql.createConnection({
 connection.connect(function(err) {
     if (err) throw err;
     console.log("Connected as id " + connection.threadId + "\n");
-    // term.slowTyping(
-    //     'WELCOME TO EMPLOYEE TRACKER!\n', { flashStyle: term.brightWhite },
-    //     function() { start(); }
-    // );
-    start();
-
+    term.slowTyping(
+        'WELCOME TO EMPLOYEE TRACKER!\n', { flashStyle: term.brightWhite },
+        function() { start(); }
+    );
 });
-
-
 
 
 function start() {
@@ -34,8 +30,6 @@ function start() {
                 "View All Employees",
                 "View All Roles",
                 "View All Departments",
-                "View All Employees By Department",
-                "View All Employees By Manager",
                 "Add Employee",
                 "Add Department",
                 "Add Role",
@@ -56,9 +50,6 @@ function start() {
                     break;
                 case "View All Departments":
                     viewDepartment();
-                    break;
-                case "View All Employees By Manager":
-                    viewManager();
                     break;
                 case "Add Employee":
                     addEmployee();
@@ -122,13 +113,11 @@ function viewDepartment() {
 };
 
 
-
 function addEmployee() {
     connection.query(`
             SELECT id, title FROM role
              `, function(err, res) {
         if (err) throw err;
-
         var roleId = [];
         var titleList = [];
         for (var i = 0; i < res.length; i++) {
@@ -157,9 +146,7 @@ function addEmployee() {
                     type: "list",
                     message: "What is the employee's manager's ID?",
                     choices: [
-                        1,
-                        2,
-                        3
+                        2
                     ]
 
                 },
@@ -217,7 +204,7 @@ function addRole() {
             },
             {
                 name: "departmentId",
-                message: "What is the role ID?"
+                message: "What is the department ID?"
 
             },
         ])
@@ -247,7 +234,6 @@ function getEmployees() {
             employeeName.push(res[i].last_name);
         }
         removeEmployee({ name: employeeName });
-
     });
 }
 
@@ -354,34 +340,42 @@ function removeRole(roleList) {
 };
 
 function updateRole() {
-    prompt([
+    inquirer.prompt([{
+            name: "movefrom",
+            type: "input",
+            message: "ID of the person you want to move:"
+        },
+        {
+            name: "moveto",
+            type: "input",
+            message: "What is the role ID you want to move them to?"
+        }
+    ]).then(function(answer) {
+        connection.query("UPDATE employee SET role_id = ? WHERE id = ?", [answer.moveto, answer.movefrom],
+            function(err, res) {
+                if (err) throw err;
+                console.log(res);
+                start();
+            });
+    });
+}
 
-            {
-                name: "roleTitle",
-                message: "What is the title of the role you'd like to update?",
-            },
-            {
-                name: "roleSalary",
-                message: "What is the updated salary?"
-
-            }
-        ])
-        .then(function(answer) {
-            connection.query(
-                "UPDATE role SET ? WHERE ?", [
-
-                    {
-                        salary: roleSalary
-                    },
-                    {
-                        title: answer.roleTitle
-                    }
-                ],
-                function(err, res) {
-                    if (err) throw err;
-                    console.log("----------------------\n" + res.affectedRows + " Role Removed!\n");
-                    start();
-                }
-            );
-        });
+function updateManager() {
+    inquirer.prompt([{
+            name: "switchid",
+            type: "input",
+            message: "ID of the person you want to change managers for:"
+        },
+        {
+            name: "managerid",
+            type: "input",
+            message: "What is the id of the manager you want to move them under?"
+        }
+    ]).then(function(answer) {
+        connection.query("UPDATE employees SET manager_id = ? WHERE id = ?", [answer.managerid, answer.switchid],
+            function(err, res) {
+                if (err) throw err;
+                start();
+            });
+    });
 }
