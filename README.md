@@ -4,7 +4,7 @@
 For this project, I created a CLI application that can manage a company's employees. This Content Management System  
 allows the user to view, add, delete, and update departments, roles, and employees.
 
-
+View a full demo here: https://drive.google.com/file/d/1bwvdGhdnEXA_C8qCx2j2WkBCmHRg0gyG/view
 ## Table Of Contents
 * [Usage](#Usage)
 * [Prerequisites](#Prerequisites)
