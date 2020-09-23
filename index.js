@@ -84,7 +84,9 @@ function start() {
 
 function viewEmployees() {
     connection.query(`
-        SELECT * FROM employee
+        SELECT employee.first_name, employee.last_name, role.title, manager.first_name AS manager_firstname, manager.last_name AS manager_lastname FROM employee
+        LEFT JOIN role ON employee.role_id = role.id
+        LEFT JOIN employee AS manager ON employee.manager_id = manager.id
          `, function(err, res) {
         if (err) throw err;
         console.table(res);
